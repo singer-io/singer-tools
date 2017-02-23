@@ -13,7 +13,7 @@ setup(name='singer-tools',
       ],
       entry_points='''
           [console_scripts]
-          tap-freshdesk=tap_freshdesk:main
-      '''
+          singer-infer-schema=singer.tools.infer_schema:main
+      ''',
       include_package_data=True,
 )
