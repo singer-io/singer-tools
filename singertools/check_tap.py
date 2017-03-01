@@ -5,7 +5,10 @@ import attr
 import singer
 import subprocess
 import sys
+import subprocess
+import threading
 from terminaltables import AsciiTable
+from subprocess import Popen
 
 @attr.s
 class StreamAcc(object):
@@ -48,6 +51,30 @@ class OutputSummary(object):
         return self.num_records() + self.num_schemas() + self.num_states
 
 
+class StdoutReader(threading.Thread):
+
+    def __init__(self, process):
+        self.summary = OutputSummary()
+        self.process = process
+        super().__init__()
+
+    def run(self):
+        self.summary = summarize_output(self.process.stdout)
+
+    def finish_reading_logs(self):
+        """Joins the thread with a timeout.
+
+        Intended to be called on the parent thread.
+        """
+        print('Joining on thread {}'.format(self.name))
+        self.join(timeout=5)
+        if self.is_alive():
+            print(
+                'Thread {} did not finish within timeout'.format(self.name))
+        else:
+            print('Thread {} finished'.format(self.name))
+
+
 def summarize_output(output):
     summary = OutputSummary()
     for line in output:
@@ -74,7 +101,14 @@ def print_summary(summary):
 
 
 def check_with_no_state(args):
-    return summarize_output(subprocess.check_output([args.tap, '--config', args.config]))
+    tap = Popen([args.tap, '--config', args.config],
+                stdout=subprocess.PIPE,
+                bufsize=1,
+                universal_newlines=True)
+    summarizer = StdoutReader(tap)
+    summarizer.start()
+    tap.wait()
+    return summarizer.summary
     
 
 def main():
@@ -94,18 +128,24 @@ def main():
     args = parser.parse_args()
 
     if args.tap:
-        if args.config:
-            print('Checking tap {} with config {}'.format(args.tap, args.config))
-            summary = check_with_no_state(args)
-        else:
+        if not args.config:
             print('If you provide --taps you must also provide --config')
             exit(1)
+
+    if args.tap:
+        print('Checking tap {} with config {}'.format(args.tap, args.config))
+        summary = check_with_no_state(args)
     else:
         print('Checking stdin for valid Singer-formatted data')
         summary = summarize_output(sys.stdin)
 
     print_summary(summary)
 
+    if args.tap:
+        if summary.latest_state:
+            print('Now re-running tap with final state produced by previous run')
+            summary = check_with_no_state(args)
+            print_summary(summary)
 
 if __name__ == '__main__':
     main()
