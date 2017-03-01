@@ -1,0 +1,2 @@
+{"stream": "exchange_rate", "schema": {"properties": {"date": {"type": "string", "format": "date-time"}}, "type": "object", "additionalProperties": true}, "key_properties": ["date"], "type": "SCHEMA"}
+{"stream": "exchange_rate", "type": "RECORD", "record": {"RUB": 57.774, "HUF": 292.2, "CZK": 25.6, "IDR": 13322.0, "SEK": 8.9539, "MYR": 4.449, "TRY": 3.6629, "KRW": 1142.0, "ZAR": 13.046, "BGN": 1.8

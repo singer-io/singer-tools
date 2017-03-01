@@ -1,0 +1,1 @@
+{"stream": "exchange_rate", "schema": {"properties": {"date": {"type": "string", "format": "date-time"}}, "type": "object", "additionalProperties": true}, "type": "SCHEMA"}
