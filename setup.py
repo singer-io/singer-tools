@@ -9,11 +9,15 @@ setup(name='singer-tools',
       url='http://singer.io',
       classifiers=['Programming Language :: Python :: 3 :: Only'],
       install_requires=[
-          'singer-python>=0.1.0'
+          'singer-python>=0.2.1',
+          'attrs==16.3.0',
+          'terminaltables==3.1.0'
       ],
+      packages=['singertools'],
       entry_points='''
           [console_scripts]
-          singer-infer-schema=singer.tools.infer_schema:main
+          singer-infer-schema=singertools.infer_schema:main
+          singer-check-tap=singertools.check_tap:main
       ''',
       include_package_data=True,
 )
