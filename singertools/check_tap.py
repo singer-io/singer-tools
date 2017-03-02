@@ -104,19 +104,25 @@ def print_summary(summary):
     print(table.table)
 
 
-def run_and_summarize(tap, config, state=None):
+def run_and_summarize(tap, config, state=None, debug=False):
     cmd = [tap, '--config', config]
     if state:
         cmd += ['--state', state]
-    print('Running command {}'.format(cmd))
-            
+    print('Running command {}'.format(' '.join(cmd)))
+
+    stderr = None if debug else subprocess.DEVNULL
     tap = Popen(cmd,
                 stdout=subprocess.PIPE,
+                stderr=stderr,
                 bufsize=1,
                 universal_newlines=True)
     summarizer = StdoutReader(tap)
     summarizer.start()
-    tap.wait()
+    returncode = tap.wait()
+    if returncode != 0:
+        print('ERROR: tap exited with status {}'.format(returncode))
+        exit(1)
+              
     return summarizer.summary
 
 
@@ -145,6 +151,12 @@ def main():
         '--config',
         help='Config file for tap')
 
+    parser.add_argument(
+        '-d',
+        '--debug',
+        action='store_true',
+        help='Turn on debugging. Show log output from tap.')
+    
     args = parser.parse_args()
 
     try:
@@ -168,6 +180,8 @@ def main():
 
     if args.tap:
         if summary.latest_state:
+            print('')
+            print('')            
             print('Now re-running tap with final state produced by previous run')
             summary = check_with_state(args, summary.latest_state)
             print_summary(summary)
