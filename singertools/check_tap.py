@@ -7,8 +7,13 @@ import subprocess
 import sys
 import subprocess
 import threading
+import tempfile
+import json
+import os
 from terminaltables import AsciiTable
 from subprocess import Popen
+
+working_dir_name = 'singer-check-tap-data'
 
 @attr.s
 class StreamAcc(object):
@@ -22,7 +27,7 @@ class StreamAcc(object):
 @attr.s
 class OutputSummary(object):
 
-    streams = attr.ib(default={})
+    streams = attr.ib(default=attr.Factory(dict))
     num_states = attr.ib(default=0)
     
     def ensure_stream(self, stream_name):
@@ -54,7 +59,6 @@ class OutputSummary(object):
 class StdoutReader(threading.Thread):
 
     def __init__(self, process):
-        self.summary = OutputSummary()
         self.process = process
         super().__init__()
 
@@ -100,8 +104,13 @@ def print_summary(summary):
     print(table.table)
 
 
-def check_with_no_state(args):
-    tap = Popen([args.tap, '--config', args.config],
+def run_and_summarize(tap, config, state=None):
+    cmd = [tap, '--config', config]
+    if state:
+        cmd += ['--state', state]
+    print('Running command {}'.format(cmd))
+            
+    tap = Popen(cmd,
                 stdout=subprocess.PIPE,
                 bufsize=1,
                 universal_newlines=True)
@@ -109,7 +118,18 @@ def check_with_no_state(args):
     summarizer.start()
     tap.wait()
     return summarizer.summary
-    
+
+
+def check_with_no_state(args):
+    return run_and_summarize(args.tap, args.config)
+
+
+def check_with_state(args, state):
+    state_path = os.path.join(working_dir_name, 'state.json')
+    with open (state_path, mode='w') as state_file:
+        json.dump(state, state_file)
+    return run_and_summarize(args.tap, args.config, state_path)
+
 
 def main():
 
@@ -127,6 +147,11 @@ def main():
 
     args = parser.parse_args()
 
+    try:
+        os.mkdir(working_dir_name)
+    except FileExistsError:
+        pass
+    
     if args.tap:
         if not args.config:
             print('If you provide --taps you must also provide --config')
@@ -144,7 +169,7 @@ def main():
     if args.tap:
         if summary.latest_state:
             print('Now re-running tap with final state produced by previous run')
-            summary = check_with_no_state(args)
+            summary = check_with_state(args, summary.latest_state)
             print_summary(summary)
 
 if __name__ == '__main__':
