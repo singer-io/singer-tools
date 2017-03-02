@@ -13,6 +13,10 @@ import os
 from terminaltables import AsciiTable
 from subprocess import Popen
 
+description = '''
+
+'''
+
 working_dir_name = 'singer-check-tap-data'
 
 @attr.s
@@ -37,7 +41,10 @@ class OutputSummary(object):
     
     def add(self, message):
         if isinstance(message, singer.RecordMessage):
-            self.ensure_stream(message.stream).num_records += 1
+            stream = self.ensure_stream(message.stream)
+            if stream.latest_schema:
+                validate(message.record, stream.latest_schema)
+            stream.num_records += 1
 
         elif isinstance(message, singer.SchemaMessage):
             self.ensure_stream(message.stream).num_schemas += 1
@@ -139,23 +146,33 @@ def check_with_state(args, state):
 
 def main():
 
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(
+        description='''Verifies that a Tap conforms to the Singer 
+        specification.''',
+        epilog='''If a --tap argument is provided, this program will 
+        exit zero if the Tap exits zero and produces valid output, or 
+        non-zero if the tap exits non-zero or if the output it 
+        produces is invalid. If no --tap is provided, exits zero if
+        the data on stdin is valid, non-zero otherwise.''')
 
     parser.add_argument(
         '-t',
         '--tap',
-        help='Tap program to execute')
+        help='''Tap program to execute. If provided, I'll run this tap 
+        and check its output. Otherwise, I'll read from stdin.''')
     
     parser.add_argument(
         '-c',
         '--config',
-        help='Config file for tap')
+        help='Config file for tap. Only used of --tap is also specified.')
 
     parser.add_argument(
         '-d',
         '--debug',
         action='store_true',
-        help='Turn on debugging. Show log output from tap.')
+        
+        help='''Turn on debugging. Show log output from tap. By default 
+        logging output from tap is suppressed.''')
     
     args = parser.parse_args()
 
