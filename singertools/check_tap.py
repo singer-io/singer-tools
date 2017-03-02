@@ -127,14 +127,14 @@ def run_and_summarize(tap, config, state=None, debug=False):
 
 
 def check_with_no_state(args):
-    return run_and_summarize(args.tap, args.config)
+    return run_and_summarize(args.tap, args.config, debug=args.debug)
 
 
 def check_with_state(args, state):
     state_path = os.path.join(working_dir_name, 'state.json')
     with open (state_path, mode='w') as state_file:
         json.dump(state, state_file)
-    return run_and_summarize(args.tap, args.config, state_path)
+    return run_and_summarize(args.tap, args.config, state=state_path, debug=args.debug)
 
 
 def main():
