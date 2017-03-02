@@ -13,11 +13,9 @@ import os
 from terminaltables import AsciiTable
 from subprocess import Popen
 
-description = '''
-
-'''
 
 working_dir_name = 'singer-check-tap-data'
+
 
 @attr.s
 class StreamAcc(object):
@@ -33,12 +31,12 @@ class OutputSummary(object):
 
     streams = attr.ib(default=attr.Factory(dict))
     num_states = attr.ib(default=0)
-    
+
     def ensure_stream(self, stream_name):
         if stream_name not in self.streams:
             self.streams[stream_name] = StreamAcc(stream_name)
         return self.streams[stream_name]
-    
+
     def add(self, message):
         if isinstance(message, singer.RecordMessage):
             stream = self.ensure_stream(message.stream)
@@ -57,7 +55,7 @@ class OutputSummary(object):
         return sum([stream.num_records for stream in self.streams.values()])
 
     def num_schemas(self):
-        return sum([stream.num_schemas for stream in self.streams.values()])    
+        return sum([stream.num_schemas for stream in self.streams.values()])
 
     def num_messages(self):
         return self.num_records() + self.num_schemas() + self.num_states
@@ -96,7 +94,8 @@ def summarize_output(output):
 def print_summary(summary):
 
     print('The output is valid.')
-    print('It contained {} messages for {} streams.'.format(summary.num_messages(), len(summary.streams)))
+    print('It contained {} messages for {} streams.'.format(
+        summary.num_messages(), len(summary.streams)))
     print('')
     print('{:7} schema messages'.format(summary.num_schemas()))
     print('{:7} record messages'.format(summary.num_records()))
@@ -104,7 +103,8 @@ def print_summary(summary):
     print('')
     print('Details by stream:')
     headers = [['stream', 'records', 'schemas']]
-    rows = [[s.name, s.num_records, s.num_schemas] for s in summary.streams.values()]
+    rows = [[s.name, s.num_records, s.num_schemas]
+            for s in summary.streams.values()]
     data = headers + rows
 
     table = AsciiTable(data)
@@ -129,7 +129,7 @@ def run_and_summarize(tap, config, state=None, debug=False):
     if returncode != 0:
         print('ERROR: tap exited with status {}'.format(returncode))
         exit(1)
-              
+
     return summarizer.summary
 
 
@@ -139,28 +139,29 @@ def check_with_no_state(args):
 
 def check_with_state(args, state):
     state_path = os.path.join(working_dir_name, 'state.json')
-    with open (state_path, mode='w') as state_file:
+    with open(state_path, mode='w') as state_file:
         json.dump(state, state_file)
-    return run_and_summarize(args.tap, args.config, state=state_path, debug=args.debug)
+    return run_and_summarize(
+        args.tap, args.config, state=state_path, debug=args.debug)
 
 
 def main():
 
     parser = argparse.ArgumentParser(
-        description='''Verifies that a Tap conforms to the Singer 
+        description='''Verifies that a Tap conforms to the Singer
         specification.''',
-        epilog='''If a --tap argument is provided, this program will 
-        exit zero if the Tap exits zero and produces valid output, or 
-        non-zero if the tap exits non-zero or if the output it 
+        epilog='''If a --tap argument is provided, this program will
+        exit zero if the Tap exits zero and produces valid output, or
+        non-zero if the tap exits non-zero or if the output it
         produces is invalid. If no --tap is provided, exits zero if
         the data on stdin is valid, non-zero otherwise.''')
 
     parser.add_argument(
         '-t',
         '--tap',
-        help='''Tap program to execute. If provided, I'll run this tap 
+        help='''Tap program to execute. If provided, I'll run this tap
         and check its output. Otherwise, I'll read from stdin.''')
-    
+
     parser.add_argument(
         '-c',
         '--config',
@@ -170,17 +171,17 @@ def main():
         '-d',
         '--debug',
         action='store_true',
-        
-        help='''Turn on debugging. Show log output from tap. By default 
+
+        help='''Turn on debugging. Show log output from tap. By default
         logging output from tap is suppressed.''')
-    
+
     args = parser.parse_args()
 
     try:
         os.mkdir(working_dir_name)
     except FileExistsError:
         pass
-    
+
     if args.tap:
         if not args.config:
             print('If you provide --taps you must also provide --config')
@@ -198,8 +199,8 @@ def main():
     if args.tap:
         if summary.latest_state:
             print('')
-            print('')            
-            print('Now re-running tap with final state produced by previous run')
+            print('')
+            print('Now re-running tap with state produced by previous run')
             summary = check_with_state(args, summary.latest_state)
             print_summary(summary)
 
