@@ -52,6 +52,49 @@ In this mode of operation, `singer-check-tap` will just validate the data
 on stdin and exit with a status of zero if it's valid or non-zero
 otherwise.
 
+### Sample data
+
+You can try `singer-check-tap` out on the data in the `samples` directory.
+
+#### A good run:
+
+```
+$ singer-check-tap < samples/fixerio-valid-initial.json
+Checking stdin for valid Singer-formatted data
+The output is valid.
+It contained 17 messages for 1 streams.
+
+      1 schema messages
+     15 record messages
+      1 state messages
+
+Details by stream:
++---------------+---------+---------+
+| stream        | records | schemas |
++---------------+---------+---------+
+| exchange_rate | 15      | 1       |
++---------------+---------+---------+
+```
+
+#### A bad run:
+
+```
+$ singer-check-tap < samples/fixerio-invalid-no-key-properties.json 
+Checking stdin for valid Singer-formatted data
+Traceback (most recent call last):
+  File "/opt/code/singer-tools/venv/bin/singer-check-tap", line 11, in <module>
+    load_entry_point('singer-tools', 'console_scripts', 'singer-check-tap')()
+  File "/opt/code/singer-tools/singertools/check_tap.py", line 195, in main
+    summary = summarize_output(sys.stdin)
+  File "/opt/code/singer-tools/singertools/check_tap.py", line 90, in summarize_output
+    summary.add(singer.parse_message(line))
+  File "/opt/code/singer-tools/venv/lib/python3.4/site-packages/singer_python-0.2.1-py3.4.egg/singer/__init__.py", line 117, in parse_message
+    key_properties=_required_key(o, 'key_properties'))
+  File "/opt/code/singer-tools/venv/lib/python3.4/site-packages/singer_python-0.2.1-py3.4.egg/singer/__init__.py", line 101, in _required_key
+    k, msg))
+Exception: Message is missing required key 'key_properties': {'stream': 'exchange_rate', 'schema': {'properties': {'date': {'format': 'date-time', 'type': 'string'}}, 'additionalProperties': True, 'type': 'object'}, 'type': 'SCHEMA'}
+```
+
 ## infer-schema
 
 If the data source you're using does not publish a schema, you can use
