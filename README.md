@@ -12,12 +12,14 @@ This package can be installed with pip:
 $ pip install singer-tools
 ```
 
-# Running
+# Tools
 
 ## singer-check-tap
 
 You can use `singer-check-tap` to check whether a Tap conforms to the
 Singer specification.
+
+### Checking a tap
 
 If you run `singer-check-tap` and provide a path to a Tap (with the
 `--tap` option) and a configuration for that Tap, it will do the following:
@@ -35,6 +37,20 @@ the output of the Tap conforms to the specification, this program will
 exit with status 0. If any of the invocations of the Tap fail (exit
 non-zero) or produce output that does not conform to the specification,
 this program will print an error message and exit with a non-zero status.
+
+### Checking output of a tap
+
+Sometimes it's convenient to validate the output of a tap, rather have
+`singer-check-tap` actually run the tap. You can do that by omitting the
+`--tap` argument and providing the Tap output on STDIN. For example:
+
+```bash
+my-tap --config config.json | singer-check-tap
+```
+
+In this mode of operation, `singer-check-tap` will just validate the data
+on stdin and exit with a status of zero if it's valid or non-zero
+otherwise.
 
 ## infer-schema
 
