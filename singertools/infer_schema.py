@@ -4,12 +4,11 @@ import json
 import sys
 import pprint
 
-past_headers = False
-observed_types = {}
+OBSERVED_TYPES = {}
 
 def add_observation(path):
 
-    node = observed_types
+    node = OBSERVED_TYPES
     for i in range(0, len(path) - 1):
         k = path[i]
         if k not in node:
@@ -78,4 +77,4 @@ def main():
         if rec['type'] == 'RECORD':
             add_observations([], rec['record'])
 
-    print(json.dumps(to_json_schema(observed_types), indent=2))
+    print(json.dumps(to_json_schema(OBSERVED_TYPES), indent=2))
