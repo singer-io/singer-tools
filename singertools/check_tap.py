@@ -1,20 +1,22 @@
 #!/usr/bin/env python3
 
 import argparse
-import attr
-import singer
-import subprocess
 import sys
 import subprocess
 import threading
 import tempfile
 import json
 import os
-from terminaltables import AsciiTable
+
 from subprocess import Popen
 
+import attr
+import singer
 
-working_dir_name = 'singer-check-tap-data'
+from terminaltables import AsciiTable
+
+
+WORKING_DIR_NAME = 'singer-check-tap-data'
 
 
 @attr.s
@@ -138,7 +140,7 @@ def check_with_no_state(args):
 
 
 def check_with_state(args, state):
-    state_path = os.path.join(working_dir_name, 'state.json')
+    state_path = os.path.join(WORKING_DIR_NAME, 'state.json')
     with open(state_path, mode='w') as state_file:
         json.dump(state, state_file)
     return run_and_summarize(
@@ -178,7 +180,7 @@ def main():
     args = parser.parse_args()
 
     try:
-        os.mkdir(working_dir_name)
+        os.mkdir(WORKING_DIR_NAME)
     except FileExistsError:
         pass
 
