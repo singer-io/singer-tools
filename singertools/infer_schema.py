@@ -10,7 +10,6 @@ observed_types = {}
 
 def add_observation(path):
 
-    global observed_types
     node = observed_types
     for i in range(0, len(path) - 1):
         k = path[i]
@@ -21,7 +20,7 @@ def add_observation(path):
     node[path[-1]] = True
 
 pp = pprint.PrettyPrinter(indent=4)
-    
+
 def add_observations(path, data):
     if isinstance(data, dict):
         for key in data:
@@ -70,7 +69,7 @@ def to_json_schema(obs):
 
         else:
             raise Exception("Unexpected data type " + key)
-        
+
     return result
 
 
