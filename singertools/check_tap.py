@@ -3,12 +3,12 @@
 import argparse
 import sys
 import subprocess
+from subprocess import Popen
 import threading
-import tempfile
 import json
 import os
 
-from subprocess import Popen
+
 
 import attr
 import singer
@@ -35,9 +35,9 @@ class OutputSummary(object):
     num_states = attr.ib(default=0)
 
     def ensure_stream(self, stream_name):
-        if stream_name not in self.streams:
-            self.streams[stream_name] = StreamAcc(stream_name)
-        return self.streams[stream_name]
+        if stream_name not in self.streams: # pylint: disable=unsupported-membership-test
+            self.streams[stream_name] = StreamAcc(stream_name) # pylint: disable=unsubscriptable-object
+        return self.streams[stream_name] # pylint: disable=unsubscriptable-object
 
     def add(self, message):
         if isinstance(message, singer.RecordMessage):
