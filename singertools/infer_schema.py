@@ -72,20 +72,12 @@ def to_json_schema(obs):
             raise Exception("Unexpected data type " + key)
         
     return result
-        
-    
-for line in sys.stdin:
 
-    if line == '\n':
-        continue
-    
-    if line == '--\n':
-        past_headers = True
-        continue
 
-    if past_headers:
+def main():
+    for line in sys.stdin:
         rec = json.loads(line)
         if rec['type'] == 'RECORD':
             add_observations([], rec['record'])
 
-print(json.dumps(to_json_schema(observed_types), indent=2))
+    print(json.dumps(to_json_schema(observed_types), indent=2))
