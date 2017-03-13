@@ -2,7 +2,6 @@
 
 import json
 import sys
-import pprint
 
 OBSERVED_TYPES = {}
 
@@ -16,8 +15,6 @@ def add_observation(path):
         node = node[k]
 
     node[path[-1]] = True
-
-pp = pprint.PrettyPrinter(indent=4)
 
 def add_observations(path, data):
     if isinstance(data, dict):
