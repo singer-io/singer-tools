@@ -18,6 +18,7 @@ setup(name='singer-tools',
           [console_scripts]
           singer-infer-schema=singertools.infer_schema:main
           singer-check-tap=singertools.check_tap:main
+          singer-release=singertools.release:main
       ''',
       include_package_data=True,
 )
