@@ -3,7 +3,7 @@
 from setuptools import setup
 
 setup(name='singer-tools',
-      version='0.0.2',
+      version='0.1.0',
       description='Tools for working with Singer.io Taps and Targets',
       author='Stitch',
       url='http://singer.io',
