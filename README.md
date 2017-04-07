@@ -133,7 +133,9 @@ will do the following:
 6. Pushes the tags with `git push --tags`
 7. `python setup.py sdist upload`
 
-
+Note that `singer-release` _does not_ change the version number. You must
+edit `setup.py` and set the version number manually and commit the change
+before running `singer-release`.
 
 License
 -------
