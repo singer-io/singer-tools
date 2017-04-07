@@ -1,10 +1,13 @@
-# singer-tools
+singer-tools
+============
+
 Tools for working with Singer Taps and Targets
 
 * `singer-check-tap` - validates Tap output
 * `singer-infer-schema` - infers a json-schema from Tap output
 
-# Installation
+Installation
+============
 
 This package can be installed with pip:
 
@@ -12,9 +15,11 @@ This package can be installed with pip:
 $ pip install singer-tools
 ```
 
-# Tools
+Tools
+=====
 
-## singer-check-tap
+singer-check-tap
+----------------
 
 You can use `singer-check-tap` to check whether a Tap conforms to the
 Singer specification.
@@ -95,7 +100,8 @@ Traceback (most recent call last):
 Exception: Message is missing required key 'key_properties': {'stream': 'exchange_rate', 'schema': {'properties': {'date': {'format': 'date-time', 'type': 'string'}}, 'additionalProperties': True, 'type': 'object'}, 'type': 'SCHEMA'}
 ```
 
-## infer-schema
+singer-infer-schema
+-------------------
 
 If the data source you're using does not publish a schema, you can use
 `infer-schema` to parse a sample of JSON-formatted data and produce a
@@ -108,6 +114,26 @@ $ singer-infer-schema < data.json > schema.json
 You should not consider the resulting schema to be complete. It's only
 intended to be a starting point, and will likely require manual editing.
 But it's probably easier than writing a schema from scratch.
+
+singer-release
+--------------
+
+For Singer projects that are written in Python, you should use
+`singer-release` to deploy packages to PyPi. This script confirms that
+your changes are up-to-date with `origin/master`, tags the release, and
+then deploys it to PyPi. To run it, just run `singer-release` from the
+root directory of a Singer project that has a `setup.py` file. This script
+will do the following:
+
+1. Parses the version number from `setup.py`
+2. Confirms that you are on the master branch
+3. Confirms that your git working directory and index are clean
+4. Does a `git push`
+5. Tags the repo with the version number
+6. Pushes the tags with `git push --tags`
+7. `python setup.py sdist upload`
+
+
 
 License
 -------

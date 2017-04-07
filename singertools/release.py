@@ -51,7 +51,6 @@ def find_version_number():
     
 def main():
     version = find_version_number()
-    print(version)
     git_check_branch()
     git_check_status()
     git('push')
