@@ -9,8 +9,10 @@ setup(name='singer-tools',
       url='http://singer.io',
       classifiers=['Programming Language :: Python :: 3 :: Only'],
       install_requires=[
-          'singer-python>=0.2.1',
           'attrs==16.3.0',
+          'jsonschema==2.6.0',
+          'singer-python>=0.2.1',
+          'strict-rfc3339==0.7',
           'terminaltables==3.1.0'
       ],
       packages=['singertools'],
