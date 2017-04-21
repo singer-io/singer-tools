@@ -61,7 +61,7 @@ class OutputSummary(object):
 
     def ensure_stream(self, stream_name):
         if stream_name not in self.streams: # pylint: disable=unsupported-membership-test
-            self.streams[stream_name] = StreamAcc(stream_name) # pylint: disable=unsubscriptable-object,unsupported-assignment-operation
+            self.streams[stream_name] = StreamAcc(stream_name) # pylint: disable=unsubscriptable-object
         return self.streams[stream_name] # pylint: disable=unsubscriptable-object
 
     def add(self, message):
