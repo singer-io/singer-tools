@@ -2,18 +2,17 @@
 
 import argparse
 import copy
-import sys
-import subprocess
-from subprocess import Popen
-import threading
+from datetime import datetime
 import json
 import os
+import subprocess
+from subprocess import Popen
+import sys
+import threading
 
 from strict_rfc3339 import rfc3339_to_timestamp
-from datetime import datetime
 import attr
-import jsonschema
-from jsonschema import ValidationError, Draft4Validator, validators, FormatChecker
+from jsonschema import Draft4Validator, validators, FormatChecker
 import singer
 
 from terminaltables import AsciiTable
@@ -30,19 +29,19 @@ def extend_with_default(validator_class):
         for error in validate_properties(validator, properties, instance, schema):
             yield error
 
-        for property, subschema in properties.items():
+        for prop, subschema in properties.items():
             if "format" in subschema:
-                if subschema['format'] == 'date-time' and instance.get(property) is not None:
+                if subschema['format'] == 'date-time' and instance.get(prop) is not None:
                     try:
-                        datetime.utcfromtimestamp(rfc3339_to_timestamp(instance[property]))
-                    except Exception as e:
+                        datetime.utcfromtimestamp(rfc3339_to_timestamp(instance[prop]))
+                    except Exception:
                         raise Exception('Error parsing property {}, value {}'
-                                        .format(property, instance[property]))
+                                        .format(prop, instance[prop]))
 
     return validators.extend(validator_class, {"properties": set_defaults})
 
 
-@attr.s
+@attr.s # pylint: disable=too-few-public-methods
 class StreamAcc(object):
 
     name = attr.ib()
@@ -57,17 +56,21 @@ class OutputSummary(object):
     streams = attr.ib(default=attr.Factory(dict))
     num_states = attr.ib(default=0)
 
+    def __init__(self):
+        self.latest_state = None
+
     def ensure_stream(self, stream_name):
         if stream_name not in self.streams: # pylint: disable=unsupported-membership-test
-            self.streams[stream_name] = StreamAcc(stream_name) # pylint: disable=unsubscriptable-object
+            self.streams[stream_name] = StreamAcc(stream_name) # pylint: disable=unsubscriptable-object,unsupported-assignment-operation
         return self.streams[stream_name] # pylint: disable=unsubscriptable-object
 
     def add(self, message):
         if isinstance(message, singer.RecordMessage):
             stream = self.ensure_stream(message.stream)
             if stream.latest_schema:
-                v = extend_with_default(Draft4Validator)
-                validator = v(stream.latest_schema, format_checker=FormatChecker())
+                validator_fn = extend_with_default(Draft4Validator)
+                validator = validator_fn(
+                    stream.latest_schema, format_checker=FormatChecker())
                 validator.validate(copy.deepcopy(message.record))
             else:
                 print('I saw a record for stream {} before the schema'.format(
@@ -85,10 +88,10 @@ class OutputSummary(object):
             self.num_states += 1
 
     def num_records(self):
-        return sum([stream.num_records for stream in self.streams.values()])
+        return sum([stream.num_records for stream in self.streams.values()]) # pylint: disable=no-member
 
     def num_schemas(self):
-        return sum([stream.num_schemas for stream in self.streams.values()])
+        return sum([stream.num_schemas for stream in self.streams.values()]) # pylint: disable=no-member
 
     def num_messages(self):
         return self.num_records() + self.num_schemas() + self.num_states
@@ -98,6 +101,7 @@ class StdoutReader(threading.Thread):
 
     def __init__(self, process):
         self.process = process
+        self.summary = None
         super().__init__()
 
     def run(self):
