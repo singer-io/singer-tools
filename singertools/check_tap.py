@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import argparse
+import copy
 import sys
 import subprocess
 from subprocess import Popen
@@ -8,15 +9,37 @@ import threading
 import json
 import os
 
-
-
+from strict_rfc3339 import rfc3339_to_timestamp
+from datetime import datetime
 import attr
+import jsonschema
+from jsonschema import ValidationError, Draft4Validator, validators, FormatChecker
 import singer
 
 from terminaltables import AsciiTable
 
 
+
 WORKING_DIR_NAME = 'singer-check-tap-data'
+
+
+def extend_with_default(validator_class):
+    validate_properties = validator_class.VALIDATORS["properties"]
+
+    def set_defaults(validator, properties, instance, schema):
+        for error in validate_properties(validator, properties, instance, schema):
+            yield error
+
+        for property, subschema in properties.items():
+            if "format" in subschema:
+                if subschema['format'] == 'date-time' and instance.get(property) is not None:
+                    try:
+                        datetime.utcfromtimestamp(rfc3339_to_timestamp(instance[property]))
+                    except Exception as e:
+                        raise Exception('Error parsing property {}, value {}'
+                                        .format(property, instance[property]))
+
+    return validators.extend(validator_class, {"properties": set_defaults})
 
 
 @attr.s
@@ -43,11 +66,19 @@ class OutputSummary(object):
         if isinstance(message, singer.RecordMessage):
             stream = self.ensure_stream(message.stream)
             if stream.latest_schema:
-                validate(message.record, stream.latest_schema)
+                v = extend_with_default(Draft4Validator)
+                validator = v(stream.latest_schema, format_checker=FormatChecker())
+                validator.validate(copy.deepcopy(message.record))
+            else:
+                print('I saw a record for stream {} before the schema'.format(
+                    message.stream))
+                exit(1)
             stream.num_records += 1
 
         elif isinstance(message, singer.SchemaMessage):
-            self.ensure_stream(message.stream).num_schemas += 1
+            stream = self.ensure_stream(message.stream)
+            stream.num_schemas += 1
+            stream.latest_schema = message.schema
 
         elif isinstance(message, singer.StateMessage):
             self.latest_state = message.value
