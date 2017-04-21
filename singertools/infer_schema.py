@@ -43,8 +43,8 @@ def to_json_schema(obs):
             result['type'] += ['object']
             if 'properties' not in result:
                 result['properties'] = {}
-                for key in obs['object']:
-                    result['properties'][key] = to_json_schema(obs['object'][key])
+                for obj_key in obs['object']:
+                    result['properties'][obj_key] = to_json_schema(obs['object'][obj_key])
 
         elif key == 'array':
             result['type'] += ['array']
