@@ -60,7 +60,6 @@ def parse_version_number(lines):
 
 
 def find_version_number():
-    candidates = []
     try:
         with open('setup.py') as setup:
             return parse_version_number(setup)
