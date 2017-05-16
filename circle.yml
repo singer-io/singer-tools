@@ -8,4 +8,4 @@ dependencies:
 
 test:
   post:
-    - pylint singertools -d missing-docstring,locally-disabled
+    - pylint singertools -d missing-docstring,locally-disabled,unsupported-assignment-operation
