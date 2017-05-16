@@ -1,11 +1,10 @@
 import json
-import sys
 import argparse
 import difflib
 
 def load_jsonl_file(file_path):
-    with open(file_path) as f:
-        lines = [json.loads(line) for line in f.readlines()]
+    with open(file_path) as file_obj:
+        lines = [json.loads(line) for line in file_obj.readlines()]
     return lines
 
 def prettify(lines):
@@ -26,5 +25,6 @@ def main():
     pretty_lines2 = prettify(lines2)
 
 
-    for line in difflib.context_diff(pretty_lines1.splitlines(), pretty_lines2.splitlines(), fromfile=args.file1, tofile=args.file2):
+    for line in difflib.context_diff(pretty_lines1.splitlines(), pretty_lines2.splitlines(),
+                                     fromfile=args.file1, tofile=args.file2):
         print(line)
