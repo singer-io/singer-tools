@@ -3,7 +3,7 @@
 from setuptools import setup
 
 setup(name='singer-tools',
-      version='0.3.3',
+      version='0.4.0',
       description='Tools for working with Singer.io Taps and Targets',
       author='Stitch',
       url='http://singer.io',
@@ -21,6 +21,7 @@ setup(name='singer-tools',
           singer-infer-schema=singertools.infer_schema:main
           singer-check-tap=singertools.check_tap:main
           singer-release=singertools.release:main
+          diff-jsonl=singertools.diff_jsonl:main
       ''',
       include_package_data=True,
 )
