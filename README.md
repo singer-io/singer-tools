@@ -137,6 +137,62 @@ Note that `singer-release` _does not_ change the version number. You must
 edit `setup.py` and set the version number manually and commit the change
 before running `singer-release`.
 
+diff-jsonl
+----------
+
+When you make a change to a tap, you want some confidence that you're not introducing a regression. So, it's helpful to be able to diff the output of tap jobs. The `diff-jsonl` tool diffs two JSONL files, such as those produced by a tap:
+
+```diff
+$ diff-jsonl data-on-master.jsonl data-on-branch.jsonl
+*** data-on-master.jsonl
+
+--- data-on-branch.jsonl
+
+***************
+
+*** 833,839 ****
+
+          "billingStreet": null,
+          "city": null,
+          "company": "Corgis Ltd",
+!         "contactCompany": 7,
+          "cookies": null,
+          "country": null,
+          "createdAt": "2016-03-10T18:47:20Z",
+--- 833,839 ----
+
+          "billingStreet": null,
+          "city": null,
+          "company": "Corgis Ltd",
+!         "contactCompany": "7",
+          "cookies": null,
+          "country": null,
+          "createdAt": "2016-03-10T18:47:20Z",
+***************
+
+*** 870,877 ****
+
+          "lastName": "Karstendick",
+          "lastReferredEnrollment": null,
+          "lastReferredVisit": null,
+!         "leadPartitionId": 1,
+!         "leadPerson": 7,
+          "leadRevenueCycleModelId": null,
+          "leadRevenueStageId": null,
+          "leadRole": null,
+--- 870,877 ----
+
+          "lastName": "Karstendick",
+          "lastReferredEnrollment": null,
+          "lastReferredVisit": null,
+!         "leadPartitionId": "1",
+!         "leadPerson": "7",
+          "leadRevenueCycleModelId": null,
+          "leadRevenueStageId": null,
+          "leadRole": null,
+***************
+```
+
 License
 -------
 
