@@ -18,7 +18,6 @@ import singer
 from terminaltables import AsciiTable
 
 
-
 WORKING_DIR_NAME = 'singer-check-tap-data'
 
 
@@ -31,7 +30,9 @@ def extend_with_default(validator_class):
 
         for prop, subschema in properties.items():
             if "format" in subschema:
-                if subschema['format'] == 'date-time' and instance.get(prop) is not None:
+                if subschema['format'] == 'date-time' and \
+                   instance is not None and \
+                   instance.get(prop) is not None:
                     try:
                         datetime.utcfromtimestamp(rfc3339_to_timestamp(instance[prop]))
                     except Exception:
