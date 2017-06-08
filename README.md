@@ -5,6 +5,8 @@ Tools for working with Singer Taps and Targets
 
 * `singer-check-tap` - validates Tap output
 * `singer-infer-schema` - infers a json-schema from Tap output
+* `singer-release` - for Singer projects that are written in Python, deploy packages to PyPi
+* `diff-jsonl` - diffs two JSONL files, such as those produced by a tap
 
 Installation
 ============
