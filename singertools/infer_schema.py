@@ -25,6 +25,8 @@ def add_observations(path, data):
             add_observations(path + ["array"], item)
     elif isinstance(data, str):
         add_observation(path + ["string"])
+    elif isinstance(data, bool):
+        add_observation(path + ["boolean"])
     elif isinstance(data, int):
         add_observation(path + ["integer"])
     elif isinstance(data, float):
@@ -52,6 +54,9 @@ def to_json_schema(obs):
 
         elif key == 'string':
             result['type'] += ['string']
+
+        elif key == 'boolean':
+            result['type'] += ['boolean']
 
         elif key == 'integer':
             result['type'] += ['integer']
