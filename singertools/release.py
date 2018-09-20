@@ -75,7 +75,7 @@ def find_dist(version):
     suffix = version + '.tar.gz'
     for candidate in candidates:
         if candidate.endswith(suffix):
-            return candidate
+            return 'dist/' + candidate
     raise Exception("I could't find a file ending with " + suffix + " in dist/")
         
 
