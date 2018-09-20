@@ -1,5 +1,8 @@
 import subprocess
 import re
+import os
+
+REPOSITORY_URL = 'https://upload.pypi.org/legacy/'
 
 def git(*args):
     cmd = ['git'] + list(args)
@@ -67,6 +70,14 @@ def find_version_number():
         print(exc)
         exit(1)
 
+def find_dist(version):
+    candidates = os.listdir('dist')
+    suffix = version + '.tar.gz'
+    for candidate in candidates:
+        if candidate.endswith(suffix):
+            return candidate
+    raise Exception("I could't find a file ending with " + suffix + " in dist/")
+        
 
 def main():
     version = find_version_number()
@@ -75,4 +86,16 @@ def main():
     git('push')
     git('tag', '-a', 'v'+version, '-m', 'version '+version)
     git('push', '--tags')
-    subprocess.call(['python', 'setup.py', 'sdist', 'upload'])
+    subprocess.call(['python', 'setup.py', 'sdist'])
+    dist = find_dist(version)
+    print()
+    confirmation = input('Upload ' + dist + ' to ' + REPOSITORY_URL + '? [y/n]: ')
+
+    if (confirmation != 'y'):
+        print('Aborting')
+        return
+    
+    subprocess.call([
+        'twine', 'upload',
+        '--repository-url', REPOSITORY_URL,
+        dist])
