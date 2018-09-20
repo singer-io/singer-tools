@@ -81,7 +81,7 @@ def find_dist(version):
 
 def main():
     version = find_version_number()
-    git_check_branch()
+#    git_check_branch()
     git_check_status()
     git('push')
     git('tag', '-a', 'v'+version, '-m', 'version '+version)
