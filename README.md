@@ -11,11 +11,12 @@ Tools for working with Singer Taps and Targets
 Installation
 ============
 
-This package can be installed with pip:
+`singer-tools` should be installed into and run from a dedicated virtualenv to avoid version
+conflicts with the tap it's operating on.
 
-```
-$ pip install singer-tools
-```
+1. Create and activate a virtualenv
+2. `pip install -e .` (for developing `singer-tools`) or `pip install singer-tools` (for running `singer-tools`)
+3. Run via `<virtualenv>/bin/<singer-tool>`, e.g. `<virtualenv>/bin/singer-check-tap`.
 
 Tools
 =====
