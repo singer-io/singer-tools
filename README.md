@@ -196,6 +196,81 @@ $ diff-jsonl data-on-master.jsonl data-on-branch.jsonl
 ***************
 ```
 
+singer-analyze-record-fields
+----------
+To get an idea of how many total fields a stream of records has, you can use `singer-analyze-record-fields` to count the unique paths. This tool will count the total number of unique paths observed in a set of records, and recusively count the number of unique nested paths with a depth = 3  
+
+Currently this only works for a single stream, but it can eventually be
+extended to support multiple streams
+
+To use `singer-analyze-record-fields`, first run the tap and redirect the output to a file:
+```
+$ <tap-foo> --config <config_file> --properties <catalog_file> --catalog <catalog_file> --state <state_file> > records.txt
+```
+
+Then run `singer-analyze-record-fields` with the file as input
+```
+$ singer-analyze-record-fields < records.txt
+```
+#### A good run:
+```
+$ singer-analyze-record-fields < records.txt
+=====================================================
+Total Fields: 1575
+
+Level 1
++------------------+-------------------+
+| Path             | Num Nested Fields |
++------------------+-------------------+
+| data             | 1566              |
+| created          | 1                 |
+| api_version      | 1                 |
+| type             | 1                 |
+| livemode         | 1                 |
+| id               | 1                 |
+| updated          | 1                 |
+| object           | 1                 |
+| pending_webhooks | 1                 |
+| request          | 1                 |
++------------------+-------------------+
+
+Level 2
++--------------------------+-------------------+
+| Path                     | Num Nested Fields |
++--------------------------+-------------------+
+| data/object              | 1332              |
+| data/previous_attributes | 233               |
++--------------------------+-------------------+
+
+Level 3
++------------------------------------+-------------------+
+| Path                               | Num Nested Fields |
++------------------------------------+-------------------+
+| data/object/metadata               | 730               |
+| data/object/subscriptions          | 89                |
+| data/previous_attributes/metadata  | 79                |
+| data/previous_attributes/lines     | 49                |
+| data/object/lines                  | 49                |
+| data/object/card                   | 32                |
+| data/object/items                  | 31                |
+| data/previous_attributes/items     | 31                |
+| data/object/cards                  | 24                |
+| data/object/sources                | 24                |
+| data/object/source                 | 24                |
+| data/previous_attributes/plan      | 23                |
+| data/object/plan                   | 23                |
+| data/object/balance_transactions   | 21                |
+| data/object/payment_method_details | 16                |
+| data/object/refunds                | 14                |
+| data/object/bank_account           | 13                |
+| data/object/billing_details        | 11                |
+| data/object/outcome                | 11                |
+| data/object/support_address        | 7                 |
+| data/object/ip_address_location    | 6                 |
++------------------------------------+-------------------+
+=====================================================
+```
+
 License
 -------
 

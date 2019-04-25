@@ -13,7 +13,7 @@ setup(name='singer-tools',
           'jsonschema==2.6.0',
           'singer-python>=0.2.1',
           'strict-rfc3339==0.7',
-          'terminaltables==3.1.0'
+          'terminaltables==3.1.0',
       ],
       packages=['singertools'],
       entry_points='''
@@ -22,6 +22,7 @@ setup(name='singer-tools',
           singer-check-tap=singertools.check_tap:main
           singer-release=singertools.release:main
           diff-jsonl=singertools.diff_jsonl:main
+          singer-analyze-record-fields=singertools.analyze_record_fields:main
       ''',
       include_package_data=True,
 )
