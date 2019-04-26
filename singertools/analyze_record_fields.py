@@ -5,6 +5,10 @@ import json
 import sys
 from terminaltables import AsciiTable
 
+
+NUM_LEVELS = 3
+NUM_TO_PRINT_PER_LEVEL = 20
+
 def get_paths_from_rec(rec, path_to_rec):
     unique_fields = set()
     for this_key in rec.keys():
@@ -27,7 +31,7 @@ def get_counts(unique_fields, level):
 def print_summary(unique_fields):
     count_level_map = {}
     print('=====================================================')
-    for level in range(0,4):
+    for level in range(0,(NUM_LEVELS+1)):
 
         if level != 0:
             print('\nLevel ' + str(level))
@@ -39,7 +43,7 @@ def print_summary(unique_fields):
             print("Total Fields: " + str(sorted_counts[0][1]))            
         else:
             headers = [['Path', 'Num Nested Fields']]
-            rows = [[f[0], f[1]] for f in sorted_counts[0:21]]
+            rows = [[f[0], f[1]] for f in sorted_counts[0:(NUM_TO_PRINT_PER_LEVEL+1)]]
             data = headers + rows
             table = AsciiTable(data)
             print(table.table)

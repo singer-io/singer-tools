@@ -13,7 +13,7 @@ setup(name='singer-tools',
           'jsonschema==2.6.0',
           'singer-python>=0.2.1',
           'strict-rfc3339==0.7',
-          'terminaltables==3.1.0',
+          'terminaltables==3.1.0'
       ],
       packages=['singertools'],
       entry_points='''
