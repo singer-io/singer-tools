@@ -30,7 +30,7 @@ def add_observations(acc, path, data):
         # If the string parses as a date, add an observation that its a date
         try:
             data = dateutil.parser.parse(data)
-        except dateutil.parser.ParserError:
+        except (dateutil.parser.ParserError, OverflowError):
             data = None
         if data:
             add_observation(acc, path + ["date"])
