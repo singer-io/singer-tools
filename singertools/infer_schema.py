@@ -2,6 +2,8 @@
 
 import json
 import sys
+import dateutil.parser
+
 
 OBSERVED_TYPES = {}
 
@@ -16,6 +18,7 @@ def add_observation(path):
 
     node[path[-1]] = True
 
+# pylint: disable=too-many-branches
 def add_observations(path, data):
     if isinstance(data, dict):
         for key in data:
@@ -24,7 +27,16 @@ def add_observations(path, data):
         for item in data:
             add_observations(path + ["array"], item)
     elif isinstance(data, str):
-        add_observation(path + ["string"])
+        # If the string parses as a date, add an observation that its a date
+        try:
+            data = dateutil.parser.parse(data)
+        except dateutil.parser.ParserError:
+            data = None
+        if data:
+            add_observation(path + ["date"])
+        else:
+            add_observation(path + ["string"])
+
     elif isinstance(data, bool):
         add_observation(path + ["boolean"])
     elif isinstance(data, int):
@@ -52,6 +64,9 @@ def to_json_schema(obs):
             result['type'] += ['array']
             result['items'] = to_json_schema(obs['array'])
 
+        elif key == 'date':
+            result['type'] += ['string']
+            result['format'] = 'date-time'
         elif key == 'string':
             result['type'] += ['string']
 
@@ -62,7 +77,9 @@ def to_json_schema(obs):
             result['type'] += ['integer']
 
         elif key == 'number':
-            result['type'] += ['number']
+            # Use type=string, format=singer.decimal
+            result['type'] += ['string']
+            result['format'] = 'singer.decimal'
 
         elif key == 'null':
             pass

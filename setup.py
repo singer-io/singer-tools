@@ -15,6 +15,13 @@ setup(name='singer-tools',
           'strict-rfc3339==0.7',
           'terminaltables==3.1.0'
       ],
+      extras_require={
+          'dev': [
+              'ipdb==0.11',
+              'pylint==2.5.3',
+              'nose'
+          ]
+      },
       packages=['singertools'],
       entry_points='''
           [console_scripts]

@@ -1,0 +1,41 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: circleci/python:3.5.6
+    steps:
+      - checkout
+      - add_ssh_keys
+      - run:
+          name: 'Setup virtual env'
+          command: |
+            python3 -m venv ~/singer-tools
+            source ~/singer-tools/bin/activate
+            pip install --upgrade pip
+            pip install .[dev]
+      - run:
+          name: 'pylint'
+          command: |
+            source ~/singer-tools/bin/activate
+            pylint singertools -d missing-docstring,locally-disabled,unsupported-assignment-operation,consider-using-sys-exit,useless-object-inheritance,no-else-return
+      - run:
+          name: 'Unit Tests'
+          command: |
+            source ~/singer-tools/bin/activate
+            nosetests tests/
+
+workflows:
+  version: 2
+  commit:
+    jobs:
+      - build
+  build_daily:
+    triggers:
+      - schedule:
+          cron: "0 0 * * *"
+          filters:
+            branches:
+              only:
+                - master
+    jobs:
+      - build
