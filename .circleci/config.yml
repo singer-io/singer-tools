@@ -2,7 +2,7 @@ version: 2
 jobs:
   build:
     docker:
-      - image: 218546966473.dkr.ecr.us-east-1.amazonaws.com/circle-ci:tap-tester-v4
+      - image: circleci/python:3.5.6
     steps:
       - checkout
       - add_ssh_keys
@@ -28,8 +28,7 @@ workflows:
   version: 2
   commit:
     jobs:
-      - build:
-          context: circleci-user
+      - build
   build_daily:
     triggers:
       - schedule:
@@ -39,5 +38,4 @@ workflows:
               only:
                 - master
     jobs:
-      - build:
-          context: circleci-user
+      - build
