@@ -9,6 +9,7 @@ jobs:
       - run:
           name: 'Setup virtual env'
           command: |
+            mkdir -p /usr/local/share/virtualenvs
             python3 -m venv /usr/local/share/virtualenvs/singer-tools
             source /usr/local/share/virtualenvs/singer-tools/bin/activate
             pip install --upgrade pip
