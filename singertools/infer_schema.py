@@ -1,15 +1,15 @@
 #!/usr/bin/env python3
 
+import argparse
+import os
 import json
 import sys
 import dateutil.parser
 
 
-OBSERVED_TYPES = {}
+def add_observation(acc, path):
 
-def add_observation(path):
-
-    node = OBSERVED_TYPES
+    node = acc
     for i in range(0, len(path) - 1):
         k = path[i]
         if k not in node:
@@ -19,13 +19,13 @@ def add_observation(path):
     node[path[-1]] = True
 
 # pylint: disable=too-many-branches
-def add_observations(path, data):
+def add_observations(acc, path, data):
     if isinstance(data, dict):
         for key in data:
-            add_observations(path + ["object", key], data[key])
+            add_observations(acc, path + ["object", key], data[key])
     elif isinstance(data, list):
         for item in data:
-            add_observations(path + ["array"], item)
+            add_observations(acc, path + ["array"], item)
     elif isinstance(data, str):
         # If the string parses as a date, add an observation that its a date
         try:
@@ -33,20 +33,22 @@ def add_observations(path, data):
         except dateutil.parser.ParserError:
             data = None
         if data:
-            add_observation(path + ["date"])
+            add_observation(acc, path + ["date"])
         else:
-            add_observation(path + ["string"])
+            add_observation(acc, path + ["string"])
 
     elif isinstance(data, bool):
-        add_observation(path + ["boolean"])
+        add_observation(acc, path + ["boolean"])
     elif isinstance(data, int):
-        add_observation(path + ["integer"])
+        add_observation(acc, path + ["integer"])
     elif isinstance(data, float):
-        add_observation(path + ["number"])
+        add_observation(acc, path + ["number"])
     elif data is None:
-        add_observation(path + ["null"])
+        add_observation(acc, path + ["null"])
     else:
         raise Exception("Unexpected value " + repr(data) + " at path " + repr(path))
+
+    return acc
 
 def to_json_schema(obs):
     result = {'type': ['null']}
@@ -90,10 +92,46 @@ def to_json_schema(obs):
     return result
 
 
-def main():
-    for line in sys.stdin:
+def infer_schemas(record_inputs, out_dir):
+    """
+    The main logic that iterates record_inputs and prints the resulting
+    inferred schema to either outdir or stdout
+    """
+    streams = {}
+
+    for line in record_inputs:
         rec = json.loads(line)
         if rec['type'] == 'RECORD':
-            add_observations([], rec['record'])
+            stream = rec['stream']
+            if stream not in streams:
+                streams[stream] = {}
+            streams[stream] = add_observations(streams[stream], [], rec['record'])
 
-    print(json.dumps(to_json_schema(OBSERVED_TYPES), indent=2))
+    for stream, observations in streams.items():
+        if out_dir:
+            out_file = os.path.join(out_dir, "{}.inferred.json".format(stream))
+            with open(out_file, 'w') as file:
+                file.write(json.dumps(to_json_schema(observations), indent=2))
+        else:
+            # This is less useful now when used with more than one stream in the input
+            print(json.dumps(to_json_schema(observations), indent=2))
+
+
+def main():
+    parser = argparse.ArgumentParser()
+
+    # records defaults to stdin or otherwise expects iterable strings
+    parser.add_argument(
+        '-r', '--records',
+        help='Iterable Records',
+        required=False,
+        default=sys.stdin)
+
+    # out-dir redirects inferred schemas to a directory with naming "<stream>.inferred.json"
+    parser.add_argument(
+        '-o', '--out-dir',
+        help='Output directory',
+        required=False)
+    parsed = parser.parse_args()
+
+    infer_schemas(parsed.records, parsed.out_dir)
