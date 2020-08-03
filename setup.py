@@ -21,7 +21,7 @@ setup(name='singer-tools',
               'pylint==2.5.3',
               'nose'
           ]
-      }
+      },
       packages=['singertools'],
       entry_points='''
           [console_scripts]

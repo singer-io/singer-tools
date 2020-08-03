@@ -1,0 +1,43 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: 218546966473.dkr.ecr.us-east-1.amazonaws.com/circle-ci:tap-tester-v4
+    steps:
+      - checkout
+      - add_ssh_keys
+      - run:
+          name: 'Setup virtual env'
+          command: |
+            python3 -m venv /usr/local/share/virtualenvs/singer-tools
+            source /usr/local/share/virtualenvs/singer-tools/bin/activate
+            pip install --upgrade pip
+            pip install .[dev]
+      - run:
+          name: 'pylint'
+          command: |
+            source /usr/local/share/virtualenvs/singer-tools/bin/activate
+            pylint singertools -d missing-docstring,locally-disabled,unsupported-assignment-operation,consider-using-sys-exit,useless-object-inheritance,no-else-return
+      - run:
+          name: 'Unit Tests'
+          command: |
+            source /usr/local/share/virtualenvs/singer-tools/bin/activate
+            nosetests tests/
+
+workflows:
+  version: 2
+  commit:
+    jobs:
+      - build:
+          context: circleci-user
+  build_daily:
+    triggers:
+      - schedule:
+          cron: "0 0 * * *"
+          filters:
+            branches:
+              only:
+                - master
+    jobs:
+      - build:
+          context: circleci-user

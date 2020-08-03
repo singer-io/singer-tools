@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 
-import dateutil.parser
 import json
 import sys
+import dateutil.parser
 
 
 OBSERVED_TYPES = {}
@@ -18,6 +18,7 @@ def add_observation(path):
 
     node[path[-1]] = True
 
+# pylint: disable=too-many-branches
 def add_observations(path, data):
     if isinstance(data, dict):
         for key in data:
@@ -29,7 +30,7 @@ def add_observations(path, data):
         # If the string parses as a date, add an observation that its a date
         try:
             data = dateutil.parser.parse(data)
-        except:
+        except dateutil.parser.ParserError:
             data = None
         if data:
             add_observation(path + ["date"])
