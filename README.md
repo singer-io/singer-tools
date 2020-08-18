@@ -87,7 +87,7 @@ Details by stream:
 #### A bad run:
 
 ```
-$ singer-check-tap < samples/fixerio-invalid-no-key-properties.json 
+$ singer-check-tap < samples/fixerio-invalid-no-key-properties.json
 Checking stdin for valid Singer-formatted data
 Traceback (most recent call last):
   File "/opt/code/singer-tools/venv/bin/singer-check-tap", line 11, in <module>
@@ -106,14 +106,28 @@ Exception: Message is missing required key 'key_properties': {'stream': 'exchang
 singer-infer-schema
 -------------------
 
+##
 If the data source you're using does not publish a schema, you can use
 `infer-schema` to parse a sample of JSON-formatted data and produce a
 basic schema.
 
+### Infer single stream
 ```bash
 $ singer-infer-schema < data.json > schema.json
 ```
 
+### Infer multiple streams
+```bash
+$ cat /tmp/tap-square-output.out | /usr/local/share/virtualenvs/singer-tools/bin/singer-infer-schema --out-dir /tmp/tap-square-schemas
+```
+The above will result in a directory like this one with one per stream:
+```
+ls /tmp/tap-square-schemas/
+categories.inferred.json  inventories.inferred.json  modifier_lists.inferred.json  payments.inferred.json  shifts.inferred.json
+discounts.inferred.json   items.inferred.json        orders.inferred.json          refunds.inferred.json   taxes.inferred.json
+```
+
+### Note
 You should not consider the resulting schema to be complete. It's only
 intended to be a starting point, and will likely require manual editing.
 But it's probably easier than writing a schema from scratch.
