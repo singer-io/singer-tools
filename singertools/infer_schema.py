@@ -109,6 +109,9 @@ def infer_schemas(record_inputs, out_dir):
 
     for stream, observations in streams.items():
         if out_dir:
+            if not os.path.exists(out_dir):
+                os.makedirs(out_dir)
+
             out_file = os.path.join(out_dir, "{}.inferred.json".format(stream))
             with open(out_file, 'w') as file:
                 file.write(json.dumps(to_json_schema(observations), indent=2))
