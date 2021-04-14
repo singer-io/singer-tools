@@ -29,8 +29,9 @@ def add_observations(acc, path, data):
     elif isinstance(data, str):
         # If the string parses as a date, add an observation that its a date
         try:
-            data = dateutil.parser.parse(data)
-        except (dateutil.parser.ParserError, OverflowError):
+            # Parse it as an ISO-8601 date to avoid some kinds of false positives
+            data = dateutil.parser.isoparse(data)
+        except (dateutil.parser.ParserError, OverflowError, ValueError):
             data = None
         if data:
             add_observation(acc, path + ["date"])
