@@ -15,7 +15,7 @@ Installation
 conflicts with the tap it's operating on.
 
 1. Create and activate a virtualenv
-2. `pip install -e .` (for developing `singer-tools`) or `pip install singer-tools` (for running `singer-tools`)
+2. `pip install -e .` (for developing `singer-tools`) or `pip install git+https://github.com/singer-io/singer-tools@master` (for running `singer-tools`)
 3. Run via `<virtualenv>/bin/<singer-tool>`, e.g. `<virtualenv>/bin/singer-check-tap`.
 
 Tools
