@@ -108,7 +108,7 @@ singer-infer-schema
 
 ##
 If the data source you're using does not publish a schema, you can use
-`infer-schema` to parse a sample of JSON-formatted data and produce a
+`infer-schema` to parse a sample Singer message (containing JSON-formatted data) and produce a
 basic schema.
 
 ### Infer single stream
