@@ -112,6 +112,9 @@ If the data source you're using does not publish a schema, you can use
 basic schema.
 
 ### Infer single stream
+
+This function relies on passing a singer-record or records with collapsed (un-prettified) json.
+
 ```bash
 $ singer-infer-schema < data.json > schema.json
 ```
