@@ -29,6 +29,7 @@ setup(name='singer-tools',
           singer-check-tap=singertools.check_tap:main
           singer-release=singertools.release:main
           diff-jsonl=singertools.diff_jsonl:main
+          singer-analyze-record-fields=singertools.analyze_record_fields:main
       ''',
       include_package_data=True,
 )
